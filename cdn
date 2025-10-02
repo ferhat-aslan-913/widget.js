@@ -29,6 +29,20 @@
     function render() {
         ensureHost();
         var sr = STATE.shadowRoot;
+        // anchor host based on desired position
+        try {
+            var hostEl = sr.host;
+            hostEl.style.position = "fixed";
+            hostEl.style.bottom = "16px";
+            if (STATE.options && STATE.options.position === "left") {
+                hostEl.style.left = "16px";
+                hostEl.style.right = "";
+            } else {
+                hostEl.style.right = "16px";
+                hostEl.style.left = "";
+            }
+            hostEl.style.zIndex = "2147483647";
+        } catch (_) { }
         sr.innerHTML = "";
         var style = document.createElement("style");
         style.textContent = css`
