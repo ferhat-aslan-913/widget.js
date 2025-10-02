@@ -1,0 +1,33 @@
+(function () {
+    var QUEUE = [];
+    var API_NAME = "YourChat";
+    var STATE = { inited: false, options: null, isOpen: false, shadowRoot: null, buttonEl: null, panelEl: null, iframeEl: null };
+    function ensureHost() { if (STATE.shadowRoot) return; var host = document.createElement("div"); host.id = "ychat-host"; host.style.all = "initial"; host.style.position = "fixed"; host.style.zIndex = "2147483647"; host.style.bottom = "16px"; host.style.right = "16px"; var sr = host.attachShadow({ mode: "open" }); document.documentElement.appendChild(host); STATE.shadowRoot = sr; }
+    function css(s) { return s[0]; }
+    function render() {
+        ensureHost(); var sr = STATE.shadowRoot; sr.innerHTML = ""; var style = document.createElement("style"); style.textContent = css`
+    :host{all:initial}
+    .ychat-button{all:initial;display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:9999px;background:${(STATE.options && STATE.options.themeColor) || "#4f46e5"};color:#fff;box-shadow:0 10px 20px rgba(0,0,0,.2);cursor:pointer}
+    .ychat-panel{all:initial;position:fixed;bottom:80px;${STATE.options && STATE.options.position === "left" ? "left:16px;" : "right:16px;"}width:${Number((STATE.options && STATE.options.width) || 360)}px;height:${Number((STATE.options && STATE.options.height) || 520)}px;max-height:calc(100vh - 120px);background:#0b0b0c;border:1px solid #111;border-radius:12px;overflow:hidden;box-shadow:0 20px 48px rgba(0,0,0,.3);display:${STATE.isOpen ? "block" : "none"}}
+    .ychat-iframe{all:initial;width:100%;height:100%;border:0}
+    @media(max-width:640px){.ychat-panel{left:0!important;right:0!important;width:100vw;height:${Math.round((((STATE.options && STATE.options.mobileHeight) || 0.9) * 100))}vh;bottom:0;border-radius:12px 12px 0 0}}
+    .ychat-title{all:initial;position:fixed;bottom:136px;${STATE.options && STATE.options.position === "left" ? "left:16px;" : "right:16px;"}background:#111827;color:#e5e7eb;font:600 14px ui-sans-serif,system-ui;padding:6px 10px;border-radius:8px;box-shadow:0 6px 16px rgba(0,0,0,.25);display:${STATE.isOpen ? "none" : "inline-block"}}
+  `; sr.appendChild(style);
+        var title = document.createElement("div"); title.className = "ychat-title"; title.textContent = (STATE.options && STATE.options.title) || "Chat"; sr.appendChild(title);
+        var button = document.createElement("button"); button.setAttribute("aria-label", "Open chat"); button.className = "ychat-button"; button.textContent = "💬"; button.addEventListener("click", toggle); STATE.buttonEl = button; sr.appendChild(button);
+        var panel = document.createElement("div"); panel.className = "ychat-panel";
+        var iframe = document.createElement("iframe"); var origin = location.origin; var url = (STATE.options && STATE.options.iframeUrl || "") + "?appId=" + encodeURIComponent((STATE.options && STATE.options.appId) || "") + "&parent_origin=" + encodeURIComponent(origin); iframe.className = "ychat-iframe"; iframe.title = (STATE.options && STATE.options.title) || "Chat"; iframe.src = url; panel.appendChild(iframe); STATE.iframeEl = iframe; STATE.panelEl = panel; sr.appendChild(panel);
+        document.addEventListener("keydown", function (e) { if (e.key === "Escape" && STATE.isOpen) { close(); STATE.buttonEl && STATE.buttonEl.focus && STATE.buttonEl.focus(); } });
+    }
+    function open() { if (!STATE.inited) return; STATE.isOpen = true; if (STATE.panelEl) STATE.panelEl.style.display = "block"; }
+    function close() { if (!STATE.inited) return; STATE.isOpen = false; if (STATE.panelEl) STATE.panelEl.style.display = "none"; }
+    function toggle() { STATE.isOpen ? close() : open(); }
+    function handleMessage(event) { if (!STATE.iframeEl || event.source !== STATE.iframeEl.contentWindow) return; var data = event.data || {}; if (data && typeof data === "object" && typeof data.type === "string") { if (data.type === "ychat:open") open(); else if (data.type === "ychat:close") close(); else if (data.type === "ychat:toggle") toggle(); else if (data.type === "ychat:resize" && STATE.panelEl) { } } }
+    function init(opts) { if (STATE.inited) return; STATE.inited = true; STATE.options = opts || {}; render(); window.addEventListener("message", handleMessage); }
+    function api(cmd) { if (cmd === "init") return init(arguments[1] || {}); if (cmd === "open") return open(); if (cmd === "close") return close(); if (cmd === "toggle") return toggle(); }
+    var existing = window[API_NAME]; if (typeof existing === "function" && Array.isArray(existing.q)) { QUEUE = existing.q.slice(); }
+    window[API_NAME] = function () { api.apply(null, arguments) }; window[API_NAME].q = [];
+    for (var i = 0; i < QUEUE.length; i++) { try { api.apply(null, QUEUE[i]) } catch (e) { } }
+})();
+
+
