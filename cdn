@@ -74,13 +74,13 @@
        .ychat-panel {
          all: initial;
          position: fixed;
-         bottom: calc(16px + 48px + 12px);
+         bottom: calc(16px + 48px);
          ${STATE.options && STATE.options.position === "left"
                 ? "left:16px;"
                 : "right:16px;"}width:${Number(
-                    (STATE.options && STATE.options.width) || 360
+                    (STATE.options && STATE.options.width) || 380
                 )}px;
-         height: ${Number((STATE.options && STATE.options.height) || 520)}px;
+         height: ${Number((STATE.options && STATE.options.height) || 790)}px;
          max-height: calc(100vh - 120px);
          background: #0b0b0c;
          border-radius: 12px;
@@ -166,19 +166,35 @@
         STATE.iframeEl = iframe;
         STATE.panelEl = panel;
         sr.appendChild(panel);
-        // apply initial closed/open state with animated properties
+        // apply initial closed/open state with animated properties and anchor button to panel edge
         if (STATE.isOpen) {
             panel.style.display = "block";
             panel.style.transform = "scale(1)";
             panel.style.opacity = "1";
             panel.style.visibility = "visible";
             panel.style.pointerEvents = "auto";
+            // keep button at chat's bottom corner
+            if (STATE.options && STATE.options.position === "left") {
+                button.style.left = "16px";
+                button.style.right = "";
+            } else {
+                button.style.right = "16px";
+                button.style.left = "";
+            }
         } else {
             panel.style.display = "none";
             panel.style.transform = "scale(0)";
             panel.style.opacity = "0";
             panel.style.visibility = "hidden";
             panel.style.pointerEvents = "none";
+            // button stays at viewport corner when closed
+            if (STATE.options && STATE.options.position === "left") {
+                button.style.left = "16px";
+                button.style.right = "";
+            } else {
+                button.style.right = "16px";
+                button.style.left = "";
+            }
         }
         document.addEventListener("keydown", function (e) {
             if (e.key === "Escape" && STATE.isOpen) {
