@@ -118,12 +118,14 @@
         var img = document.createElement("img");
         img.src = iconUrl;
         img.alt = (STATE.options && STATE.options.title) || "Chat";
-        img.style.width = "32px";
-        img.style.height = "32px";
+        img.style.width = "48px";
+        img.style.height = "48px";
         img.style.borderRadius = "100%";
         img.style.backgroundColor = "transparent";
         img.style.objectFit = "cover";
         img.style.objectPosition = "center";
+        img.style.cursor = "pointer";
+        img.style.boxShadow = "0 10px 20px rgba(0, 0, 0, 0.2)";
         button.appendChild(img);
         button.addEventListener("click", toggle);
         STATE.buttonEl = button;
