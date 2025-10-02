@@ -53,24 +53,24 @@
         width: 24px;
         height: 24px;
       }
-      .ychat-panel {
-        all: initial;
-        position: fixed;
-        bottom: 80px;
-        ${STATE.options && STATE.options.position === "left"
+       .ychat-panel {
+         all: initial;
+         position: fixed;
+         bottom: 80px;
+         ${STATE.options && STATE.options.position === "left"
                 ? "left:16px;"
                 : "right:16px;"}width:${Number(
                     (STATE.options && STATE.options.width) || 360
                 )}px;
-        height: ${Number((STATE.options && STATE.options.height) || 520)}px;
-        max-height: calc(100vh - 120px);
-        background: #0b0b0c;
-        border: 1px solid #111;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 20px 48px rgba(0, 0, 0, 0.3);
-        display: ${STATE.isOpen ? "block" : "none"};
-      }
+         height: ${Number((STATE.options && STATE.options.height) || 520)}px;
+         max-height: calc(100vh - 120px);
+         background: #0b0b0c;
+         border-radius: 12px;
+         overflow: hidden;
+         box-shadow: 0 20px 48px rgba(0, 0, 0, 0.3);
+         transform-origin: ${STATE.options && STATE.options.position === "left" ? "left bottom" : "right bottom"};
+         transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), opacity 150ms ease;
+       }
       .ychat-iframe {
         all: initial;
         width: 100%;
@@ -147,6 +147,18 @@
         STATE.iframeEl = iframe;
         STATE.panelEl = panel;
         sr.appendChild(panel);
+        // apply initial closed/open state with animated properties
+        if (STATE.isOpen) {
+            panel.style.transform = "scale(1) translateY(0)";
+            panel.style.opacity = "1";
+            panel.style.visibility = "visible";
+            panel.style.pointerEvents = "auto";
+        } else {
+            panel.style.transform = "scale(0.9) translateY(8px)";
+            panel.style.opacity = "0";
+            panel.style.visibility = "hidden";
+            panel.style.pointerEvents = "none";
+        }
         document.addEventListener("keydown", function (e) {
             if (e.key === "Escape" && STATE.isOpen) {
                 close();
@@ -157,12 +169,23 @@
     function open() {
         if (!STATE.inited) return;
         STATE.isOpen = true;
-        if (STATE.panelEl) STATE.panelEl.style.display = "block";
+        if (STATE.panelEl) {
+            STATE.panelEl.style.visibility = "visible";
+            STATE.panelEl.style.pointerEvents = "auto";
+            STATE.panelEl.style.transform = "scale(1) translateY(0)";
+            STATE.panelEl.style.opacity = "1";
+        }
     }
     function close() {
         if (!STATE.inited) return;
         STATE.isOpen = false;
-        if (STATE.panelEl) STATE.panelEl.style.display = "none";
+        if (STATE.panelEl) {
+            STATE.panelEl.style.pointerEvents = "none";
+            STATE.panelEl.style.transform = "scale(0.9) translateY(8px)";
+            STATE.panelEl.style.opacity = "0";
+            // delay visibility to avoid popping during transition
+            setTimeout(function () { if (!STATE.isOpen && STATE.panelEl) { STATE.panelEl.style.visibility = "hidden"; } }, 180);
+        }
     }
     function toggle() {
         STATE.isOpen ? close() : open();
