@@ -168,12 +168,14 @@
         sr.appendChild(panel);
         // apply initial closed/open state with animated properties
         if (STATE.isOpen) {
-            panel.style.transform = "scaleY(1)";
+            panel.style.display = "block";
+            panel.style.transform = "scale(1)";
             panel.style.opacity = "1";
             panel.style.visibility = "visible";
             panel.style.pointerEvents = "auto";
         } else {
-            panel.style.transform = "scaleY(0)";
+            panel.style.display = "none";
+            panel.style.transform = "scale(0)";
             panel.style.opacity = "0";
             panel.style.visibility = "hidden";
             panel.style.pointerEvents = "none";
@@ -189,21 +191,34 @@
         if (!STATE.inited) return;
         STATE.isOpen = true;
         if (STATE.panelEl) {
-            STATE.panelEl.style.visibility = "visible";
-            STATE.panelEl.style.pointerEvents = "auto";
-            STATE.panelEl.style.transform = "scaleY(1)";
-            STATE.panelEl.style.opacity = "1";
+            var p = STATE.panelEl;
+            p.style.display = "block";
+            p.style.visibility = "visible";
+            p.style.pointerEvents = "auto";
+            // start from collapsed, then animate to full
+            p.style.transform = "scale(0)";
+            p.style.opacity = "0";
+            requestAnimationFrame(function () {
+                p.style.transform = "scale(1)";
+                p.style.opacity = "1";
+            });
         }
     }
     function close() {
         if (!STATE.inited) return;
         STATE.isOpen = false;
         if (STATE.panelEl) {
-            STATE.panelEl.style.pointerEvents = "none";
-            STATE.panelEl.style.transform = "scaleY(0)";
-            STATE.panelEl.style.opacity = "0";
-            // delay visibility to avoid popping during transition
-            setTimeout(function () { if (!STATE.isOpen && STATE.panelEl) { STATE.panelEl.style.visibility = "hidden"; } }, 180);
+            var p2 = STATE.panelEl;
+            p2.style.pointerEvents = "none";
+            p2.style.transform = "scale(0)";
+            p2.style.opacity = "0";
+            // delay to end of transition, then hide
+            setTimeout(function () {
+                if (!STATE.isOpen && p2) {
+                    p2.style.visibility = "hidden";
+                    p2.style.display = "none";
+                }
+            }, 210);
         }
     }
     function toggle() {
