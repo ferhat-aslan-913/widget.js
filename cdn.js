@@ -9,6 +9,7 @@
     buttonEl: null,
     panelEl: null,
     iframeEl: null,
+    poweredByEl: null,
   };
   function ensureHost() {
     if (STATE.shadowRoot) return;
@@ -188,8 +189,8 @@
     iframe.className = "ychat-iframe";
     iframe.title = (STATE.options && STATE.options.title) || "Chat";
     iframe.src = url;
-    iframe.style.height = "525px";
-    iframe.style.width = "375px";
+    iframe.style.height = window.innerHeight > 860 ? "700px" : "525px";
+    iframe.style.width = window.innerHeight > 860 ? "490px" : "375px";
     iframe.style.borderRadius = "16px";
     iframe.style.border = "none";
     panel.appendChild(iframe);
@@ -203,6 +204,24 @@
         STATE.buttonEl && STATE.buttonEl.focus && STATE.buttonEl.focus();
       }
     });
+
+
+    //powered by 913.ai
+    var poweredBy = document.createElement("span");
+
+    poweredBy.textContent = "Powered by 913.ai";
+    poweredBy.style.fontSize = "12px";
+    poweredBy.style.color = "#71717A";
+    poweredBy.style.textAlign = "center";
+    poweredBy.style.width = window.innerHeight > 860 ? "490px" : "375px";
+    poweredBy.style.position = "fixed";
+    poweredBy.style.bottom = "58px";
+    poweredBy.style.fontFamily = "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif";
+    poweredBy.style.display = "none"; // Hidden by default
+    poweredBy.style.opacity = "0";
+    poweredBy.style.transition = "opacity 0.32s cubic-bezier(0.22, 1, 0.36, 1)";
+    STATE.poweredByEl = poweredBy;
+    sr.appendChild(poweredBy);
   }
   function open() {
     if (!STATE.inited) return;
@@ -212,6 +231,12 @@
       // Trigger reflow to ensure animation plays
       STATE.panelEl.offsetHeight;
       STATE.panelEl.classList.add("open");
+    }
+    if (STATE.poweredByEl) {
+      STATE.poweredByEl.style.display = "block";
+      // Trigger reflow to ensure animation plays
+      STATE.poweredByEl.offsetHeight;
+      STATE.poweredByEl.style.opacity = "1";
     }
     if (STATE.buttonEl) {
       STATE.buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down"><path d="m6 9 6 6 6-6"/></svg>`;
@@ -224,11 +249,20 @@
     if (STATE.panelEl) {
       STATE.panelEl.classList.remove("open");
       // Wait for animation to finish before hiding
-      setTimeout(function () {
-        if (!STATE.isOpen) {
-          STATE.panelEl.style.display = "none";
-        }
-      }, 300);
+
+      if (!STATE.isOpen) {
+        STATE.panelEl.style.display = "none";
+      }
+
+    }
+    if (STATE.poweredByEl) {
+      STATE.poweredByEl.style.opacity = "0";
+      // Wait for animation to finish before hiding completely
+
+      if (!STATE.isOpen && STATE.poweredByEl) {
+        STATE.poweredByEl.style.display = "none";
+      }
+
     }
     if (STATE.buttonEl) {
       STATE.buttonEl.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square-more-icon lucide-message-square-more"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/><path d="M12 11h.01"/><path d="M16 11h.01"/><path d="M8 11h.01"/></svg>`;
