@@ -1,6 +1,6 @@
 (function () {
   var QUEUE = [];
-  var API_NAME = "YourChat";
+  var API_NAME = "Chat913";
   var STATE = {
     inited: false,
     options: null,
@@ -181,13 +181,13 @@
     var iframe = document.createElement("iframe");
     var origin = location.origin;
     var url =
-      ((STATE.options && STATE.options.iframeUrl) || "") +
+      ((STATE.options && STATE.options.iframeUrl) || "https://embed-app-813672933176.europe-west3.run.app/") +
       "?appId=" +
-      encodeURIComponent((STATE.options && STATE.options.appId) || "") +
+      encodeURIComponent((STATE.options && STATE.options.appId) || "YOUR_APP_ID") +
       "&parent_origin=" +
       encodeURIComponent(origin);
     iframe.className = "ychat-iframe";
-    iframe.title = (STATE.options && STATE.options.title) || "Chat";
+    iframe.title = (STATE.options && STATE.options.title) || "913.ai Chat";
     iframe.src = url;
     iframe.style.height = window.innerHeight > 860 ? "700px" : "525px";
     iframe.style.width = window.innerHeight > 860 ? "490px" : "375px";
